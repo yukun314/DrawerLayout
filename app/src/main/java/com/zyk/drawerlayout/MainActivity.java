@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private void init(){
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.activity_main_drawerlayout);
-        mDrawerLayout.setHeader(20, Gravity.LEFT);
+        mDrawerLayout.setHeader(100, Gravity.LEFT);
         mDrawerLayout.setHeader(20, Gravity.RIGHT);
         mDrawerLayout.setHeader(20, Gravity.TOP);
         mDrawerLayout.setHeader(20, Gravity.BOTTOM);
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         left.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mDrawerLayout.setDrawerTitle(Gravity.LEFT,"左边菜单的 Title");
                 mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         top.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mDrawerLayout.setDrawerTitle(Gravity.TOP,"上边菜单的 Title");
                 mDrawerLayout.openDrawer(Gravity.TOP);
             }
         });
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mDrawerLayout.setDrawerTitle(Gravity.RIGHT,"右边菜单的 Title");
                 mDrawerLayout.openDrawer(Gravity.RIGHT);
             }
         });
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         bottom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mDrawerLayout.setDrawerTitle(Gravity.BOTTOM,"下边菜单的 Title");
                 mDrawerLayout.openDrawer(Gravity.BOTTOM);
             }
         });

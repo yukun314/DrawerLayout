@@ -1790,7 +1790,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                 mRightDragger.smoothSlideViewTo(drawerView, getWidth() - drawerView.getWidth(),
                         drawerView.getTop());
             } else {
-                mBottomDragger.smoothSlideViewTo(drawerView, drawerView.getLeft(), getHeight() - drawerView.getHeight());
+                mBottomDragger.smoothSlideViewTo(drawerView, drawerView.getLeft(),
+                        getHeight() - drawerView.getHeight());
             }
 
         }
@@ -2506,6 +2507,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
             // This reverses the positioning shown in onLayout.
             if (checkDrawerViewAbsoluteGravity(changedView, Gravity.LEFT)) {
+                System.out.println("left:"+left);
                 offset = (float) (childWidth + left) / childWidth;
             } else if (checkDrawerViewAbsoluteGravity(changedView, Gravity.TOP)) {
                 offset = (float)(childHeight + top) / childHeight;
@@ -2517,6 +2519,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                 offset = (float) (height - top) / childHeight;
             }
 
+            System.out.println("offset:"+offset);
             setDrawerViewOffset(changedView, offset);
             changedView.setVisibility(offset == 0 ? INVISIBLE : VISIBLE);
             invalidate();
@@ -2669,7 +2672,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
             if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-                return Math.max(-child.getWidth(), Math.min(left, 0));
+                return Math.max(-child.getWidth() + mLeftHeader, Math.min(left, 0));
             } else if (checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)) {
                 final int width = getWidth();
                 return Math.max(width - child.getWidth(), Math.min(left, width));
