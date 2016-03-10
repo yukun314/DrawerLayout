@@ -64,9 +64,9 @@ import java.util.List;
  *
  * <p>Drawer positioning and layout is controlled using the <code>android:layout_gravity</code>
  * attribute on child views corresponding to which side of the view you want the drawer
- * to emerge from: left or right (or start/end on platform versions that support layout direction.)
- * Note that you can only have one drawer view for each vertical edge of the window. If your
- * layout configures more than one drawer view per vertical edge of the window, an exception will
+ * to emerge from: left or right or top or bottom (or start/end on platform versions that support layout direction.)
+ * Note that you can only have one drawer view for each vertical/horizontal edge of the window. If your
+ * layout configures more than one drawer view per vertical/horizontal edge of the window, an exception will
  * be thrown at runtime.
  * </p>
  *
@@ -242,6 +242,14 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     private Drawable mShadowTop = null;
     private Drawable mShadowBottom = null;
 
+    /**不同方向上的drawer的header宽/高*/
+    private int mLeftHeader = 0;
+    private int mTopHeader = 0;
+    private int mRightHeader = 0;
+    private int mBottomHeader = 0;
+
+    final float density;
+
     private final ArrayList<View> mNonDrawerViews;
 
     /**
@@ -377,7 +385,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     public DrawerLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        final float density = getResources().getDisplayMetrics().density;
+        density = getResources().getDisplayMetrics().density;
         mMinDrawerMarginWidth = (int) (MIN_DRAWER_MARGIN * density + 0.5f);
         //FIXME 暂时先和水平的相同，最后按照竖屏的计算出竖直的（按屏幕的宽高比）
         mMinDrawerMarginHeight = mMinDrawerMarginWidth;
@@ -1334,20 +1342,20 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
                 final float newOffset;
                 if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-                    childLeft = -childWidth + (int) (childWidth * lp.onScreen);
+                    childLeft = -childWidth + (int) (childWidth * lp.onScreen) + mLeftHeader;
                     childTop = lp.topMargin;
                     newOffset = (float) (childWidth + childLeft) / childWidth;
                 } else if(checkDrawerViewAbsoluteGravity(child, Gravity.TOP)) {
                     childLeft = lp.leftMargin;
-                    childTop = -childHeight + (int) (childHeight * lp.onScreen);
+                    childTop = -childHeight + (int) (childHeight * lp.onScreen) + mTopHeader;
                     newOffset = (float) (childTop +childHeight) / childHeight;
                 } else if(checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)){ // Right; onMeasure checked for us.
-                    childLeft = width - (int) (childWidth * lp.onScreen);
+                    childLeft = width - (int) (childWidth * lp.onScreen) - mRightHeader;
                     childTop = lp.topMargin;
                     newOffset = (float) (width - childLeft) / childWidth;
                 }else {
                     childLeft = lp.leftMargin;
-                    childTop = height - (int) (childHeight * lp.onScreen);
+                    childTop = height - (int) (childHeight * lp.onScreen) - mBottomHeader;
                     newOffset = (float) (height - childTop) / childHeight;
                 }
 
@@ -1731,25 +1739,18 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
             if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
                 needsInvalidate |= mLeftDragger.smoothSlideViewTo(child,
-                        -childWidth, child.getTop());
+                        -childWidth + mLeftHeader, child.getTop());
             } else if (checkDrawerViewAbsoluteGravity(child, Gravity.TOP)) {
                 needsInvalidate |= mTopDragger.smoothSlideViewTo(child,
-                        child.getLeft(), -child.getHeight());
+                        child.getLeft(), -child.getHeight() + mTopHeader);
             } else if (checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)) {
                 needsInvalidate |= mRightDragger.smoothSlideViewTo(child,
-                        getWidth(), child.getTop());
+                        getWidth() - mRightHeader, child.getTop());
             }else {
                 needsInvalidate |= mBottomDragger.smoothSlideViewTo(child,
-                        child.getLeft(), getHeight());
+                        child.getLeft(), getHeight() - mBottomHeader);
             }
 
-//            if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-//                needsInvalidate |= mLeftDragger.smoothSlideViewTo(child,
-//                        -childWidth, child.getTop());
-//            } else {
-//                needsInvalidate |= mRightDragger.smoothSlideViewTo(child,
-//                        getWidth(), child.getTop());
-//            }
             lp.isPeeking = false;
         }
 
@@ -1829,16 +1830,16 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             lp.openState |= LayoutParams.FLAG_IS_CLOSING;
 
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
-                mLeftDragger.smoothSlideViewTo(drawerView, -drawerView.getWidth(),
+                mLeftDragger.smoothSlideViewTo(drawerView, -drawerView.getWidth() + mLeftHeader,
                         drawerView.getTop());
             } else if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.TOP)) {
                 mTopDragger.smoothSlideViewTo(drawerView, drawerView.getLeft(),
-                        -drawerView.getHeight());
+                        -drawerView.getHeight() + mTopHeader);
             } else if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.RIGHT)) {
-                mRightDragger.smoothSlideViewTo(drawerView, getWidth(), drawerView.getTop());
+                mRightDragger.smoothSlideViewTo(drawerView, getWidth() - mRightHeader, drawerView.getTop());
             } else {
                 mBottomDragger.smoothSlideViewTo(drawerView, drawerView.getLeft(),
-                        getHeight());
+                        getHeight() - mBottomHeader);
             }
         }
         invalidate();
@@ -2143,6 +2144,28 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                 != ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                 && ViewCompat.getImportantForAccessibility(child)
                 != ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+    }
+
+    /**
+     * @param size header的宽/高  单位dp
+     * @param gravity Gravity.LEFT add to left drawer or Gravity.RIGHT for the right or
+     *                Gravity.TOP for the top or Gravity.BOTTOM for the bottom.
+     *                GravityCompat.START or GravityCompat.END may also be used.
+     */
+    public void setHeader(int size, @EdgeGravity int gravity) {
+        final int absGravity = GravityCompat.getAbsoluteGravity(gravity,
+                ViewCompat.getLayoutDirection(this));
+        int s = (int) (size*density +0.5f);
+        if (absGravity == Gravity.LEFT) {
+            mLeftHeader = s;
+        } else if (absGravity == Gravity.TOP) {
+            mTopHeader = s;
+        } else if (absGravity == Gravity.RIGHT) {
+            mRightHeader = s;
+        }else {
+            mBottomHeader = s;
+        }
+        invalidate();
     }
 
     /**
@@ -2576,7 +2599,6 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         }
 
         private void peekDrawer() {
-            System.out.println("peekDrawer 方法执行了");
             final View toCapture;
             final int childLeft;
             final int peekDistance = mDragger.getEdgeSize();

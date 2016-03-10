@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.zyk.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,7 +26,10 @@ public class MainActivity extends AppCompatActivity {
     private void init(){
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.activity_main_drawerlayout);
-
+        mDrawerLayout.setHeader(20, Gravity.LEFT);
+        mDrawerLayout.setHeader(20, Gravity.RIGHT);
+        mDrawerLayout.setHeader(20, Gravity.TOP);
+        mDrawerLayout.setHeader(20, Gravity.BOTTOM);
         View body = findViewById(R.id.activity_main_body);
         Button left = (Button) body.findViewById(R.id.acitivyt_main_body_left);
         left.setOnClickListener(new View.OnClickListener() {
