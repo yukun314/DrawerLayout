@@ -16,17 +16,17 @@
             android:id="@+id/activity_main_left"
             layout="@layout/activity_main_menu_left"/>
 
-        <include
-            android:id="@+id/activity_main_top"
-            layout="@layout/activity_main_menu_top"/>
+        <!--<include-->
+            <!--android:id="@+id/activity_main_top"-->
+            <!--layout="@layout/activity_main_menu_top"/>-->
 
-        <include
-            android:id="@+id/activity_main_right"
-            layout="@layout/activity_main_menu_right"/>
+        <!--<include-->
+            <!--android:id="@+id/activity_main_right"-->
+            <!--layout="@layout/activity_main_menu_right"/>-->
 
-        <include
-            android:id="@+id/activity_main_botton"
-            layout="@layout/activity_main_menu_bottom"/>
+        <!--<include-->
+            <!--android:id="@+id/activity_main_botton"-->
+            <!--layout="@layout/activity_main_menu_bottom"/>-->
 
     </com.zyk.drawerlayout.widget.DrawerLayout>
 </RelativeLayout>
