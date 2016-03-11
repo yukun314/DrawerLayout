@@ -26,10 +26,10 @@ public class MainActivity extends AppCompatActivity {
     private void init(){
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.activity_main_drawerlayout);
-        mDrawerLayout.setHeader(20, Gravity.LEFT);
-        mDrawerLayout.setHeader(20, Gravity.RIGHT);
-        mDrawerLayout.setHeader(20, Gravity.TOP);
-        mDrawerLayout.setHeader(20, Gravity.BOTTOM);
+        mDrawerLayout.setHeader(200, Gravity.LEFT);
+        mDrawerLayout.setHeader(300, Gravity.RIGHT);
+        mDrawerLayout.setHeader(30, Gravity.TOP);
+        mDrawerLayout.setHeader(40, Gravity.BOTTOM);
         View body = findViewById(R.id.activity_main_body);
         Button left = (Button) body.findViewById(R.id.acitivyt_main_body_left);
         left.setOnClickListener(new View.OnClickListener() {

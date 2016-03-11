@@ -1320,6 +1320,12 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         mInLayout = true;
         final int width = r - l;
         final int height = b -1;
+        final int wi = width /4;
+        final int he = height/4;
+        mLeftHeader = Math.min(mLeftHeader, wi);
+        mTopHeader = Math.min(mTopHeader, he);
+        mRightHeader = Math.min(mRightHeader, wi);
+        mBottomHeader = Math.min(mBottomHeader, he);
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
@@ -1342,28 +1348,48 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
                 final float newOffset;
                 if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-                    childLeft = -childWidth + (int) (childWidth * lp.onScreen) + mLeftHeader;
                     childTop = lp.topMargin;
-                    newOffset = (float) (childWidth + childLeft) / childWidth;
+                    if (mLeftHeader - childWidth >= child.getLeft()) {
+                        childLeft = mLeftHeader - childWidth;
+                        newOffset = 0;
+                    } else {
+                        childLeft = -childWidth + (int) (childWidth * lp.onScreen);
+                        newOffset = (float) (childWidth + childLeft) / childWidth;
+                    }
                 } else if(checkDrawerViewAbsoluteGravity(child, Gravity.TOP)) {
                     childLeft = lp.leftMargin;
-                    childTop = -childHeight + (int) (childHeight * lp.onScreen) + mTopHeader;
-                    newOffset = (float) (childTop +childHeight) / childHeight;
+                    if (mTopHeader - childHeight >= child.getTop()) {
+                        childTop = mTopHeader - childHeight;
+                        newOffset = 0;
+                    } else {
+                        childTop = -childHeight + (int) (childHeight * lp.onScreen);
+                        newOffset = (float) (childTop +childHeight) / childHeight;
+                    }
                 } else if(checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)){ // Right; onMeasure checked for us.
-                    childLeft = width - (int) (childWidth * lp.onScreen) - mRightHeader;
                     childTop = lp.topMargin;
-                    newOffset = (float) (width - childLeft) / childWidth;
+                    if (width - mRightHeader >= child.getLeft()) {
+                        childLeft = width - mRightHeader;
+                        newOffset = 0;
+                    } else {
+                        childLeft = width - (int) (childWidth * lp.onScreen);
+                        newOffset = (float) (width - childLeft) / childWidth;
+                    }
                 }else {
                     childLeft = lp.leftMargin;
-                    childTop = height - (int) (childHeight * lp.onScreen) - mBottomHeader;
-                    newOffset = (float) (height - childTop) / childHeight;
+                    if (height - mBottomHeader >= child.getTop()) {
+                        childTop = height - mBottomHeader;
+                        newOffset = 0;
+                    } else {
+                        childTop = height - (int) (childHeight * lp.onScreen);
+                        newOffset = (float) (height - childTop) / childHeight;
+                    }
                 }
 
                 final boolean changeOffset = newOffset != lp.onScreen;
 
                 final int vgrav = lp.gravity & Gravity.VERTICAL_GRAVITY_MASK;
                 //FIXME 有什么用？
-                if(vgrav == Gravity.CENTER_VERTICAL){
+                if (vgrav == Gravity.CENTER_VERTICAL) {
                     final int h = b - t;
                     childTop = (h - childHeight) / 2;
 
@@ -1380,10 +1406,10 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                     setDrawerViewOffset(child, newOffset);
                 }
 
-                final int newVisibility = lp.onScreen > 0 ? VISIBLE : INVISIBLE;
-                if (child.getVisibility() != newVisibility) {
-                    child.setVisibility(newVisibility);
-                }
+//                final int newVisibility = lp.onScreen > 0 ? VISIBLE : INVISIBLE;
+//                if (child.getVisibility() != newVisibility) {
+//                    child.setVisibility(newVisibility);
+//                }
             }
         }
         mInLayout = false;
@@ -2157,7 +2183,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                 ViewCompat.getLayoutDirection(this));
         int s = (int) (size*density +0.5f);
         if (absGravity == Gravity.LEFT) {
-            mLeftHeader = s;
+            mLeftHeader =  s;
         } else if (absGravity == Gravity.TOP) {
             mTopHeader = s;
         } else if (absGravity == Gravity.RIGHT) {
@@ -2506,19 +2532,18 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
             // This reverses the positioning shown in onLayout.
             if (checkDrawerViewAbsoluteGravity(changedView, Gravity.LEFT)) {
-                offset = (float) (childWidth + left) / childWidth;
+                offset = mLeftHeader - childWidth >= left ? 0 : (float) (childWidth + left) / childWidth;
             } else if (checkDrawerViewAbsoluteGravity(changedView, Gravity.TOP)) {
-                offset = (float)(childHeight + top) / childHeight;
+                offset = mTopHeader - childHeight >= top ? 0 : (float)(childHeight + top) / childHeight;
             } else if(checkDrawerViewAbsoluteGravity(changedView, Gravity.RIGHT)) {
                 final int width = getWidth();
-                offset = (float) (width - left) / childWidth;
+                offset = width - mRightHeader <= left ? 0 : (float) (width - left) / childWidth;
             }else{
                 final int height = getHeight();
-                offset = (float) (height - top) / childHeight;
+                offset = height - mBottomHeader <= top ? 0: (float) (height - top) / childHeight;
             }
-
             setDrawerViewOffset(changedView, offset);
-            changedView.setVisibility(offset == 0 ? INVISIBLE : VISIBLE);
+//            changedView.setVisibility(offset == 0 ? INVISIBLE : VISIBLE);
             invalidate();
         }
 
@@ -2572,19 +2597,19 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             int top;
 
             if (checkDrawerViewAbsoluteGravity(releasedChild, Gravity.LEFT)) {
-                left = xvel > 0 || xvel == 0 && offset > 0.5f ? 0 : -childWidth;
+                left = xvel > 0 || xvel == 0 && offset > 0.5f ? 0 : -childWidth + mLeftHeader;
                 top = releasedChild.getTop();
             } else if(checkDrawerViewAbsoluteGravity(releasedChild, Gravity.TOP)) {
                 left = releasedChild.getLeft();
-                top = yvel > 0 || yvel == 0 && offset >0.5f ? 0 : -childHeight;
+                top = yvel > 0 || yvel == 0 && offset >0.5f ? 0 : -childHeight + mTopHeader;
             } else if (checkDrawerViewAbsoluteGravity(releasedChild, Gravity.RIGHT)) {
                 final int width = getWidth();
-                left = xvel < 0 || xvel == 0 && offset > 0.5f ? width - childWidth : width;
+                left = xvel < 0 || xvel == 0 && offset > 0.5f ? width - childWidth : width - mRightHeader;
                 top = releasedChild.getTop();
             }else {
                 left = releasedChild.getLeft();
                 final int height = getHeight();
-                top = yvel < 0 || yvel == 0 && offset >0.5f ? height - childHeight : height;
+                top = yvel < 0 || yvel == 0 && offset >0.5f ? height - childHeight : height - mBottomHeader;
             }
 
             mDragger.settleCapturedViewAt(left, top);
@@ -2640,12 +2665,6 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
             final View toCapture;
-//            if ((edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT) {
-//                toCapture = findDrawerWithGravity(Gravity.LEFT);
-//            } else {
-//                toCapture = findDrawerWithGravity(Gravity.RIGHT);
-//            }
-
             if ((edgeFlags & ViewDragHelper.EDGE_LEFT) == ViewDragHelper.EDGE_LEFT) {
                 toCapture = findDrawerWithGravity(Gravity.LEFT);
             } else if ((edgeFlags & ViewDragHelper.EDGE_TOP) == ViewDragHelper.EDGE_TOP) {
@@ -2669,7 +2688,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
             if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-                return Math.max(-child.getWidth(), Math.min(left, 0));
+                    return Math.max(-child.getWidth(), Math.min(left, 0));
             } else if (checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)) {
                 final int width = getWidth();
                 return Math.max(width - child.getWidth(), Math.min(left, width));
